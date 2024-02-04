@@ -12,8 +12,8 @@ RUN <<EOF
   # clone coredns
   git clone --branch "v${COREDNS_VERSION}" --depth 1 https://github.com/coredns/coredns
 
-  # inject plugin
-  echo 'docker:github.com/kevinjqiu/coredns-dockerdiscovery' >> coredns/plugin.cfg
+  # inject plugin in a certain order (which is important)
+  sed -i 's/^#.*//g; /^$/d; 50 i docker:github.com/kevinjqiu/coredns-dockerdiscovery' coredns/plugin.cfg
 
   # build
   (cd coredns; make all)
