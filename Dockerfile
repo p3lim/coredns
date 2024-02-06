@@ -15,9 +15,12 @@ RUN <<EOF
   # inject plugin in a certain order (which is important)
   sed -i 's/^#.*//g; /^$/d; 50 i docker:github.com/kevinjqiu/coredns-dockerdiscovery' coredns/plugin.cfg
 
-  # build
-  (cd coredns; make all)
+  # generate and update deps
+  (cd coredns; go generate)
+  (cd coredns; go mod tidy)
 
+  # build
+  (cd coredns; make)
 EOF
 
 # can't run rootless like the original coredns image because of the dockerdiscovery plugin
