@@ -4,9 +4,9 @@ ARG COREDNS_VERSION
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN <<EOF
-  # install deps for adjusting binary capabilities
+  # install ca certs
   apt-get update
-  apt-get -y install libcap2-bin
+  apt-get -y install ca-certificates
   apt-get clean
 
   # clone coredns
@@ -18,21 +18,14 @@ RUN <<EOF
   # build
   (cd coredns; make all)
 
-  # adjust binary capabilities
-  setcap cap_net_bind_service=+ep coredns/coredns
 EOF
 
-# base off original image
-FROM coredns/coredns:$COREDNS_VERSION
+# can't run rootless like the original coredns image because of the dockerdiscovery plugin
+FROM scratch
 
-# copy our modified coredns binary
+# copy the binary and cert data
 COPY --from=build /go/coredns/coredns /coredns
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-# use fields from original image
-USER nonroot:nonroot
 EXPOSE 53 53/udp
 ENTRYPOINT ["/coredns"]
-
-# set custom command as default (just because it's annoying)
-CMD ["-conf", "/Corefile"]
-
