@@ -1,5 +1,5 @@
 ARG COREDNS_VERSION=1.11.1
-FROM golang:1.20-bookworm AS build
+FROM golang:1.22-bookworm AS build
 ARG COREDNS_VERSION
 
 ARG DEBIAN_FRONTEND=noninteractive
